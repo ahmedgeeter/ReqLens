@@ -1,0 +1,22 @@
+Project: Data Pipeline Redesign — Review Meeting Notes
+Date: Q2 Planning Session
+
+The system should process incoming data batches within 30 seconds under normal load conditions.
+All API responses must be returned within 500 milliseconds for 95% of requests.
+
+User authentication is required before accessing any data export feature.
+The platform must support at least 200 concurrent users without degradation in response time.
+
+Export functionality should allow users to download records in both CSV and Excel formats.
+The application must log all user actions with a timestamp and user ID for audit purposes.
+
+Error messages presented to end users must not expose internal stack traces or database details.
+The system must remain available 99.5% of the time, excluding scheduled maintenance windows.
+
+Data older than 90 days should be automatically archived and removed from the active database.
+The reporting module must generate summary reports grouped by status, priority, and assigned team.
+
+All inter-service communication must use HTTPS. Plain HTTP connections should be rejected.
+The interface must be accessible from modern browsers without requiring any plugin installation.
+
+New records submitted via the API must be validated against the defined schema before persistence.
