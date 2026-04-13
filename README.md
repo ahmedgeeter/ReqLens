@@ -1,131 +1,83 @@
 ﻿# ReqLens
 
-> AI-assisted requirement extraction with a human-in-the-loop review workflow.
-
-ReqLens turns raw engineering text — meeting notes, spec emails, review comments — into a structured, reviewable requirement table. Built for engineering teams who want to move faster from discussion to documented requirements without losing human judgment in the loop.
+Turn messy engineering notes into clean, reviewed requirements — powered by Gemini, built for engineers who care about quality.
 
 ---
 
-## Live Demo
+## The Problem
 
-**[Try it on Streamlit Cloud](https://your-app.streamlit.app)** *(replace with your deployed link)*
+Meeting notes, spec emails, and review threads are full of requirements buried in paragraphs. Extracting them manually is slow, inconsistent, and easy to get wrong.
 
----
+## The Solution
 
-## What It Does
-
-| Step | What happens |
-|------|-------------|
-| **Extract** | Paste raw text or upload a .txt file. Gemini extracts atomic requirements and returns them as a typed, structured table. |
-| **Review** | Edit type, priority, and review status directly in the table. Validation flags empty rows, invalid values, and duplicate statements. |
-| **Export** | Download the reviewed requirements as CSV. Save named snapshots to session history for comparison. |
+Paste your raw text. ReqLens calls Gemini, extracts structured requirements, and hands them back to you in an editable table — typed, prioritized, and ready for review. You stay in control of every decision.
 
 ---
 
-## Why It Matters
+## How It Works
 
-Engineering teams lose hours manually reformatting meeting notes into requirement trackers. This tool automates the extraction step while keeping a human in control of every decision — the AI proposes, the engineer approves.
+**1. Extract** — paste any engineering text or upload a `.txt` file. Gemini returns structured requirements with type, priority, and source phrase.
 
----
+**2. Review** — edit the table directly. Change types, adjust priorities, mark rows as Accepted. Built-in validation catches empty rows and duplicates before you export.
 
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| UI | Streamlit |
-| AI | Google Gemini 2.5 Flash (gemini-2.5-flash) |
-| Data | pandas, Python dataclasses |
-| Validation | Custom rule-based validators |
-| Export | CSV via pandas |
+**3. Export** — download as CSV or save a snapshot to session history.
 
 ---
 
-## Project Structure
+## Under the Hood
 
-`
-reqlens/
-├── streamlit_app.py        # Entry point, page config, session init
-├── pages/
-│   ├── 1_Extract.py        # Main workflow: input, extract, review, export
-│   └── 2_History.py        # Session snapshot browser
-├── core/
-│   ├── gemini.py           # Gemini API integration with graceful error handling
-│   ├── schema.py           # RequirementRecord dataclass + DataFrame helpers
-│   ├── validators.py       # Field validation and normalized duplicate detection
-│   ├── export.py           # CSV export helper
-│   └── state.py            # Centralized session state initialization
-├── data/
-│   └── sample_input.txt    # 14 realistic engineering statements for testing
-└── requirements.txt
-`
+A few decisions worth noting for anyone reading the code:
+
+- **Structured JSON output** via `response_mime_type="application/json"` — no regex, no fragile parsing.
+- **Result dict pattern** — `extract()` never raises. It always returns `{ok, records, error}` so the UI stays in control.
+- **Typed schema** — `RequirementRecord` dataclass keeps the data contract explicit throughout.
+- **Normalized duplicate detection** — text is lowercased and whitespace-collapsed before comparison.
+- **Immutable history snapshots** — `df.copy()` on save, so editing the current table never corrupts past snapshots.
 
 ---
 
-## Key Engineering Decisions
+## Stack
 
-- **Structured output over prompt parsing** — uses esponse_mime_type="application/json" in the Gemini SDK for reliable structured output instead of regex-parsing free text.
-- **Result dict pattern** — extract() always returns {"ok", "records", "error", "raw_response"}. No exceptions bubble up to the UI.
-- **Typed schema** — RequirementRecord dataclass enforces the internal data contract; UI never works with raw dicts.
-- **Normalized duplicate detection** — text is lowercased, trimmed, and whitespace-collapsed before comparison to reduce false negatives.
-- **Human review step** — eview_status field (Pending / Reviewed / Accepted) makes the AI-assist nature explicit. The tool proposes; the engineer decides.
-- **Immutable snapshots** — history entries store df.copy(), not a reference, so editing the current table never corrupts past snapshots.
+Python · Streamlit · Google Gemini 2.5 Flash · pandas
 
 ---
 
-## Getting Started
+## Run Locally
 
-### Prerequisites
-
-- Python 3.11+
-- A free Gemini API key from [aistudio.google.com](https://aistudio.google.com) — no credit card needed.
-
-### Installation
-
-`ash
+```bash
 git clone https://github.com/ahmedgeeter/ReqLens.git
 cd ReqLens
 pip install -r requirements.txt
-`
+```
 
-### API Key Setup
+Add your Gemini API key (free at [aistudio.google.com](https://aistudio.google.com)):
 
-Create .streamlit/secrets.toml:
-
-`	oml
+```toml
+# .streamlit/secrets.toml
 GEMINI_API_KEY = "your-key-here"
-`
+```
 
-Or set an environment variable:
-
-`ash
-export GEMINI_API_KEY=your-key-here
-`
-
-The app shows a clear warning if no key is found — it does not crash.
-
-### Run
-
-`ash
+```bash
 streamlit run streamlit_app.py
-`
+```
 
-### Quick Test
-
-Open the **Extract** page and load data/sample_input.txt — 14 realistic engineering statements that produce a well-distributed mix of Functional, Non-Functional, and Constraint requirements.
+No key yet? Load `data/sample_input.txt` from the Extract page to see the full workflow.
 
 ---
 
-## Limitations
+## Project Layout
 
-- Session-only — no database. Refreshing the page resets all state.
-- Duplicate detection is text-based; paraphrased duplicates won't be caught.
-- Extraction quality depends on input clarity — vague or conversational text may produce incomplete results.
+```
+core/
+  gemini.py       Gemini integration + error handling
+  schema.py       RequirementRecord dataclass
+  validators.py   Validation rules + duplicate detection
+  export.py       CSV export
+pages/
+  1_Extract.py    Main workflow
+  2_History.py    Session snapshot browser
+```
 
 ---
 
-## Possible Extensions
-
-- Persist snapshots to SQLite for cross-session history
-- Excel export with conditional formatting by priority
-- Traceability links between requirements and source document sections
-- Filter and search bar in the review table
+> Built as a focused, realistic tool — not a demo. Every design decision has a reason.
