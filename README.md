@@ -1,4 +1,10 @@
-﻿# ReqLens
+
+![Recording 2026-04-13 153101](https://github.com/user-attachments/assets/b77b1b5d-075e-4f5f-ba37-d69a3c2a23f9)
+
+
+
+ # ReqLens
+
 
 Turn messy engineering notes into clean, reviewed requirements — powered by Gemini, built for engineers who care about quality.
 
