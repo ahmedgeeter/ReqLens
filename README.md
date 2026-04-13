@@ -8,6 +8,8 @@
 
 Turn messy engineering notes into clean, reviewed requirements — powered by Gemini, built for engineers who care about quality.
 
+**[Live Demo](https://reqlens-4txdpz7tctx8fmnxxqbekt.streamlit.app/)** — try it now, no setup needed.
+
 ---
 
 ## The Problem
